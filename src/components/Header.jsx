@@ -1,9 +1,8 @@
-import { useState } from 'react'
 import '../styles/components.css'
 
-export default function Header({ activeTab, setActiveTab }) {
-  const tabs = ['Beranda', 'Usulan', 'Laporan', 'Dokumen']
+const TABS = ['Beranda', 'Usulan', 'Laporan', 'Dokumen']
 
+export default function Header({ activeTab, setActiveTab }) {
   return (
     <header className="header">
       <a href="#" className="logo">
@@ -15,7 +14,7 @@ export default function Header({ activeTab, setActiveTab }) {
       </a>
 
       <nav className="header-nav">
-        {tabs.map((tab) => (
+        {TABS.map((tab) => (
           <button
             key={tab}
             className={`nav-tab ${activeTab === tab ? 'active' : ''}`}
@@ -29,7 +28,7 @@ export default function Header({ activeTab, setActiveTab }) {
       <div className="header-status">
         <span>🔒 Parameter TA 2026 terkunci</span>
         <div className="status-indicator"></div>
-        <span style={{ color: 'var(--success)' }}>Sinkron</span>
+        <span className="status-text">Sinkron</span>
       </div>
     </header>
   )

@@ -86,6 +86,10 @@
   font-size: 12px;
 }
 
+.status-text {
+  color: var(--success);
+}
+
 .status-indicator {
   width: 4px;
   height: 4px;
