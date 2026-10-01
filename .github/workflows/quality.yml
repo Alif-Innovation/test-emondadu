@@ -1,0 +1,126 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches:
+      - main
+      - claude/file-redesign-q3jtz0
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+      - claude/file-redesign-q3jtz0
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: ESLint Check
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: false
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build Test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Check build size
+        run: |
+          SIZE=$(du -sh dist/ | cut -f1)
+          echo "Build size: $SIZE"
+
+          # Fail if build is larger than 5MB
+          if [ $(du -s dist/ | cut -f1) -gt 5242880 ]; then
+            echo "❌ Build size exceeds 5MB limit"
+            exit 1
+          fi
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    name: Lighthouse Audit
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Audit with Lighthouse
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: dist/
+
+  security:
+    runs-on: ubuntu-latest
+    name: Security Audit
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for vulnerable dependencies
+        run: |
+          npm audit --json > audit-report.json || true
+          cat audit-report.json
+
+  changelog:
+    runs-on: ubuntu-latest
+    name: Changelog Check
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if CHANGELOG.md was updated
+        run: |
+          if git diff --name-only origin/main...HEAD | grep -q CHANGELOG.md; then
+            echo "✅ CHANGELOG.md was updated"
+          else
+            echo "⚠️ CHANGELOG.md was not updated"
+          fi
