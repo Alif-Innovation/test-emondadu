@@ -2,6 +2,8 @@
 
 Modern React.js dashboard for managing Village Fund (Dana RT) allocation and planning. Built with the latest technologies and best practices.
 
+**🚀 Live Demo**: https://alif-innovation.github.io/test-emondadu/
+
 ---
 
 ## 📸 Screenshots & Showcase
